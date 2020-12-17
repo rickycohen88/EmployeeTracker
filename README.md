@@ -43,7 +43,8 @@ then use the project.
 * Node.js [Node](https://nodejs.org/en/)
 * Express.js[Express](https://expressjs.com/)
 * MySQL [MySQL](https://www.mysql.com/)
-* MySQL.js'this is an npm' [mysql.js](https://www.npmjs.com/package/mysql)
+* npm mysql [mysql.js](https://www.npmjs.com/package/mysql)
+* npm Console.table [console.table](https://www.npmjs.com/package/console.table)
 * Heroku [Heroku](https://www.heroku.com/)
 
 
