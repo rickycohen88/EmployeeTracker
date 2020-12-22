@@ -1,0 +1,28 @@
+{
+  "name": "employeetracker",
+  "version": "1.0.0",
+  "description": "A node CMS ",
+  "main": "index.js",
+  "scripts": {
+    "test": "n/a"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rickycohen88/EmployeeTracker.git"
+  },
+  "keywords": [
+    "NODE",
+    "mySQL"
+  ],
+  "author": "Ricky Cohen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rickycohen88/EmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/rickycohen88/EmployeeTracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
