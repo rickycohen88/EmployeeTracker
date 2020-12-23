@@ -44,7 +44,7 @@ function mainMenu() {
   inquirer
     .prompt([
       {
-        type: "rawlist",
+        type: "list",
         name: "main",
         message: "Where would you like to start?",
         choices: [
@@ -85,45 +85,40 @@ function ExitFunction() {
   process.exit(0);
 }
 
-async function departmentView() {
-  let mySqlQuery = "SELECT * FROM department";
-  //   connection.query(mySqlQuery, function (err, res) {
-  //     if (err) throw err;
-  //     // let data = res;
-
-  //     // for (var i = 0;i<res.length;i++){
-
-  //     // }
-  //     console.log(res);
-  //     console.table(res);
-  //     connection.query("SELECT name FROM department", function (err, res) {
-  //       if (err) throw err;
-  //       console.log(res);
-  //       console.log(res[0]);
-  //     });
-  //   });
-  await inquirer
+ function departmentView() {
+    connection.query("SELECT * FROM department", function (err, res) {
+      if (err) throw err;
+      console.table(res);
+    });
+   inquirer
     .prompt([
       {
-        type: "rawlist",
-        name: "department",
-        message: "Pick a department, bub",
+        type: "list",
+        name: "departments",
+        message: "Select The department you would like to view.",
         choices: async function (answers) {
-          console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
           let things = await connection.query("SELECT name FROM department");
-          console.log("BBBBB", things);
+          
+            let data = [];
 
-           let data = [];
           for (let i = 0; i < things.length; i++) {
-              let o = {};
-              o.name = things[i].name;
-              o.value = things[i].name;
-              data.push(o);
+              let x = {};
+              x.name = things[i].name;
+              x.value = things[i].name;
+              data.push(x);
           }
 
           return data;
-        },
+          
+        }
       },
+      {
+          type:"list",
+          name:"Engineering",
+          message:"",
+
+
+      }
     ]);
 }
 
