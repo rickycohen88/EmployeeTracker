@@ -4,7 +4,8 @@
   "description": "A node CMS ",
   "main": "index.js",
   "scripts": {
-    "test": "n/a"
+    "test": "n/a",
+    "start": "node develop/index.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "ascii-art": "^2.5.0",
     "console.table": "^0.10.0",
     "inquirer": "^7.3.3",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "util": "^0.12.3"
   }
 }
