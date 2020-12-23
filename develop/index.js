@@ -36,7 +36,7 @@ function queryDBxyz() {
     //ends database connection for query
   });
 }
-function selectThisfromThat(SelItem,SelTbl){inquirer
+function viewThisfromThat(SelItem,SelTbl){inquirer
     .prompt([
       {
         type: "list",
