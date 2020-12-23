@@ -58,16 +58,16 @@ inquirer.prompt([
 ])
 .then(function(userChoice){
     switch(userChoice.main){
-        case "view departments(name-manager-employee-budget":
+        case "departments":
                 departmentView();
             break;
-        case "view employee roles in the company":
+        case "roles":
                 roleView();
             break;
-        case "view employees in the company(by manager availible here)":
+        case "employees":
                 employeeView();
             break;
-        case "Exit the Program.":
+        case "exit":
                 ExitFunction();
             break;
     }
@@ -79,6 +79,16 @@ function ExitFunction(){
     connection.end();
     console.log("mysql connection ended");
     process.exit(0);
+};
+
+function departmentView(){
+    let query = "SELECT * FROM department";
+    connection.query(query,function(err,res){
+        if(err) throw err;
+        for (var i = 0;i<res.length;i++){
+            
+        }
+    })
 };
 
 function example(){

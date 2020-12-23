@@ -10,7 +10,7 @@ PRIMARY KEY(id),
 manager VARCHAR(30) NULL
 );
 CREATE TABLE job(
-id INT,
+id INT NOT NULL AUTO_INCREMENT,
 PRIMARY KEY (id),
 title VARCHAR (30),
 salary FLOAT(10,2),
@@ -18,7 +18,7 @@ department_id INT,
 FOREIGN KEY(id) REFERENCES department(id)
 );
 CREATE TABLE employee(
-id INT,
+id INT NOT NULL AUTO_INCREMENT,
 PRIMARY KEY(id),
 first_name VARCHAR(30),
 last_name VARCHAR(30),
