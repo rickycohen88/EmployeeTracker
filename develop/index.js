@@ -19,7 +19,9 @@ const connection = mysql.createConnection({
 connection.query = util.promisify(connection.query);
 connection.connect(function (err) {
   if (err) throw err;
-  //add ascii image here!!!!!!
+  // asciiArt.create("EMPLOYEE_CMS", "DOOM",function(rendered){
+
+  // })
   mainMenu();
 });
 // functions to Query DB
@@ -34,6 +36,47 @@ function queryDBxyz() {
     //ends database connection for query
   });
 }
+function selectThisfromThat(SelItem,SelTbl){inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "main",
+        message: "Select The department you would like to view.",
+        choices: async function () {
+          let things = await connection.query("SELECT ? FROM ?",[SelItem,SelTbl]);
+          
+            let data = [];
+
+          for (let i = 0; i < things.length; i++) {
+              let x = {};
+              x.name = things[i].name;
+              x.value = things[i].name;
+              data.push(x);
+          }
+
+          return data;
+          
+        },
+      
+      },
+    ])};
+// async function asyncQueryChoices(queryString){
+//   let things = await util.promisify(connection.query(queryString));
+//   console.log(things);
+//   let data = [];
+
+//   for (let i = 0; i < things.length; i++) {
+//       let x = {};
+//       x.name = things[i].name;
+//       x.value = things[i].name;
+//       console.log(x);
+//       data.push(x);
+//       console.log(data);
+//   }
+//   console.log(data);
+//   return data;
+  
+// };
 
 //inquirer format- and stuffs
 // blank.prompt()
@@ -49,28 +92,25 @@ function mainMenu() {
         message: "Where would you like to start?",
         choices: [
           {
-            name: "view departments(name-manager-employee-budget",
-            value: "departments",
+             name: "view departments(name-manager-employee-budget)",
+            value: "view",
           },
-          { name: "view employee roles in the company", value: "roles" },
-          {
-            name: "view employees in the company(by manager availible here)",
-            value: "employees",
+          {  name: "change departments, roles, or employees", 
+            value: "change" 
           },
-          { name: "Exit the Program.", view: "exit" },
+          {  name: "Exit the Program.",
+            value: "exit" 
+          },
         ],
       },
     ])
     .then(function (userChoice) {
       switch (userChoice.main) {
-        case "departments":
-          departmentView();
+        case "view":
+          view();
           break;
-        case "roles":
-          roleView();
-          break;
-        case "employees":
-          employeeView();
+        case "change":
+          change();
           break;
         case "exit":
           ExitFunction();
@@ -85,50 +125,26 @@ function ExitFunction() {
   process.exit(0);
 }
 
- function departmentView() {
-    connection.query("SELECT * FROM department", function (err, res) {
+ function viewSomeTable(selTbl) {
+    connection.query("SELECT * FROM ?",[selTbl], function (err, res) {
       if (err) throw err;
       console.table(res);
     });
-   inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "departments",
-        message: "Select The department you would like to view.",
-        choices: async function (answers) {
-          let things = await connection.query("SELECT name FROM department");
-          
-            let data = [];
+   
+    
+};
 
-          for (let i = 0; i < things.length; i++) {
-              let x = {};
-              x.name = things[i].name;
-              x.value = things[i].name;
-              data.push(x);
-          }
-
-          return data;
-          
-        }
-      },
-      {
-          type:"list",
-          name:"Engineering",
-          message:"",
-
-
-      }
-    ]);
-}
-
-function roleView() {
-  let query = "SELECT * FROM job";
-  connection.query(query, function (err, res) {
-    if (err) throw err;
-    console.log(res);
-  });
-}
+function change() {
+  inquirer.prompt([
+    {
+      type:"list",
+      name:"main",
+      message:"What would you like to change",
+      choice:
+    }
+  ])
+  
+};
 
 function employeeView() {
   let query = "SELECT * FROM employee";
