@@ -92,10 +92,10 @@ function mainMenu() {
         message: "Where would you like to start?",
         choices: [
           {
-             name: "view departments(name-manager-employee-budget)",
+             name: "view departments,Job Titles,Employees,Managers",
             value: "view",
           },
-          {  name: "change departments, roles, or employees", 
+          {  name: "change departments, roles, employees or Managers", 
             value: "change" 
           },
           {  name: "Exit the Program.",
@@ -117,6 +117,59 @@ function mainMenu() {
           break;
       }
     });
+};
+
+function viewMain(){
+  inquirer.prompt([
+    {
+      name:"viewMain",
+      message:"What would you like to view?",
+      type:"list",
+      choices:[
+        {name:"Departments(manager,roles, personnel, operating budget)",value:"departments"},
+        {name:"Job Titles(all roles within the company the department they belong to and the current salary)",value:"roles"},
+        {name:"Employees(all or by manager)",value:"employee"},
+        {name:"Back to main menu",value:"backToMain"}
+      ]
+    },
+    {
+      type:"list",
+      name:"departmentsChoice",
+      message:"",
+      Choices:"",
+      when:function(responce){
+        return responce.viewMain.indexOf('departments')>-1
+      }
+    },
+    {
+      type:"",
+      name:"",
+      message:"",
+      Choices:"",
+      when:function(){}
+    },
+    {
+      type:"",
+      name:"",
+      message:"",
+      Choices:"",
+      when:function(){}
+    },
+    {
+      type:"",
+      name:"",
+      message:"",
+      Choices:"",
+      when:function(){}
+    },
+    {
+      type:"",
+      name:"",
+      message:"",
+      Choices:"",
+      when:function(){}
+    }
+  ])
 }
 
 function ExitFunction() {
