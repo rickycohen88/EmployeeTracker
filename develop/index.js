@@ -24,18 +24,13 @@ connection.connect(function (err) {
   // })
   mainMenu();
 });
-// functions to Query DB
-function queryDBxyz() {
-  //Connects to database using our variable and the .connect method
-  connection.connect(function (err) {
-    if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    // functions to do stuff
-
-    connection.end();
-    //ends database connection for query
-  });
+// functions to Query DB for department total
+function budget(x) {
+ connection.query(budgetQuery,[x]);
 }
+
+let budgetQuery = "UPDATE department SET department.operating_budget = ( SELECT sum( employee_cms.job.salary) FROM employee_cms.job WHERE department_id =?) WHERE id =?;";
+
 function viewThisfromThat(SelItem,SelTbl){inquirer
     .prompt([
       {
@@ -135,32 +130,138 @@ function viewMain(){
     {
       type:"list",
       name:"departmentsChoice",
-      message:"",
-      Choices:"",
+      message:"Please choose the department you would like to view.",
+      choices:async function () {
+        let things = await connection.query("SELECT * FROM department");
+        
+          let data = [];
+
+        for (let i = 0; i < things.length; i++) {
+            let x = {};
+            x.name = things[i].name;
+            x.value = things[i].name;
+            data.push(x);
+        }
+
+        return data;
+        
+      },
       when:function(responce){
-        return responce.viewMain.indexOf('departments')>-1
+        return responce.viewMain.indexOf('departments')>-1;
       }
     },
     {
-      type:"",
-      name:"",
+      type:"list",
+      name:"jobTitles",
       message:"",
-      Choices:"",
-      when:function(){}
+      Choices:async function () {
+        let things = await connection.query("SELECT * FROM job");
+        
+          let data = [];
+
+        // for (let i = 0; i < things.length; i++) {
+        //     let x = {};
+        //     x.name = things[i].name;
+        //     x.value = things[i].name;
+        //     data.push(x);
+        // }
+
+        console.log(things);
+
+        return data;
+        
+      },
+      when:function(responce){
+        return responce.viewMain.indexOf('roles')>-1;
+      }
     },
     {
-      type:"",
-      name:"",
-      message:"",
-      Choices:"",
-      when:function(){}
+      type:"list",
+      name:"employeeChoices",
+      message:"how would you like to view the company personell",
+      Choices:[
+        {name:"all",value:"all"},
+        {name:"by manager",value:"manager"},
+        {name:"by department",value:"department"}
+      ],
+      when:function(responce){
+        return responce.viewMain.indexOf('employee')>-1;
+      }
     },
     {
-      type:"",
-      name:"",
-      message:"",
-      Choices:"",
-      when:function(){}
+      type:"list",
+      name:"employees",
+      message:"please select an employee",
+      Choices: async function () {
+        let things = await connection.query("SELECT * FROM employee");
+        
+          let data = [];
+
+        // for (let i = 0; i < things.length; i++) {
+        //     let x = {};
+        //     x.name = things[i].name;
+        //     x.value = things[i].name;
+        //     data.push(x);
+        // }
+
+        console.log(things);
+
+        return data;
+        
+      },
+      when:function(responce){
+        return responce.employeeChoices.indexOf('all')>-1
+      }
+    },
+    {
+      type:"list",
+      name:"byManager",
+      message:"please select an employee",
+      Choices: async function () {
+        let things = await connection.query("SELECT * FROM employee ");
+        
+          let data = [];
+
+        // for (let i = 0; i < things.length; i++) {
+        //     let x = {};
+        //     x.name = things[i].name;
+        //     x.value = things[i].name;
+        //     data.push(x);
+        // }
+
+        console.log(things);
+
+        return data;
+        
+      },
+      when:function(responce){
+        return responce.employeeChoices.indexOf('manager')>-1
+      }
+    },
+    {
+      type:"list",
+      name:"employees",
+      message:"please select an employee",
+      Choices: async function () {
+        let things = await connection.query("SELECT * FROM employee");
+        
+          let data = [];
+
+        // for (let i = 0; i < things.length; i++) {
+        //     let x = {};
+        //     x.name = things[i].name;
+        //     x.value = things[i].name;
+        //     data.push(x);
+        // }
+
+        console.log(things);
+
+        return data;
+        
+      },
+      when:function(responce){
+        return responce.employeeChoices.indexOf('department')>-1
+      }
     },
     {
       type:"",
@@ -193,19 +294,26 @@ function change() {
       type:"list",
       name:"main",
       message:"What would you like to change",
-      choice:
+      choice:[
+        {name:"Departments",value:"departments"},
+        {name:"Titles/roles",value:"roles"},
+        {name:"Employees",value:"employee"}
+      ]
+    },
+    {
+      type:"",
+      name:"",
+      message:"",
+      choices:[
+
+      ],
+      when:function(){}
     }
   ])
   
 };
 
-function employeeView() {
-  let query = "SELECT * FROM employee";
-  connection.query(query, function (err, res) {
-    if (err) throw err;
-    console.log(res);
-  });
-}
+
 
 function example() {
   inquirer
