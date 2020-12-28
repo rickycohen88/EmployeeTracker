@@ -2,7 +2,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const myTable = require("console.table");
-const asciiArt = require("ascii-logo");
+const asciiArt = require("asciiart-logo");
 const conFig = require('../package.json');
 const util = require("util");
 // fs = require("fs");
@@ -22,7 +22,7 @@ connection.connect(function (err) {
   if (err) throw err;
  
 // render ascii logo
-console.log(logo(config).render());
+console.log(asciiArt(conFig).render());
 
   async function test(){
     let things = await connection.query("SELECT * FROM employee");
