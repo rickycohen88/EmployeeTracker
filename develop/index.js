@@ -22,14 +22,33 @@ connection.connect(function (err) {
   // asciiArt.create("EMPLOYEE_CMS", "DOOM",function(rendered){
 
   // })
-  mainMenu();
+
+  async function test(){
+    let things = await connection.query("SELECT * FROM employee");
+    let data = [];
+
+        for (let i = 0; i < things.length; i++) {
+            let x = {};
+            x.name = things[i].first_name +things[i].last_name;
+            x.value = things[i].first_name + things[i].last_name;
+            data.push(x);
+        }
+
+        console.log(data);
+        console.log(things);
+
+        return data;
+        
+  }
+
+ mainMenu();
 });
 // functions to Query DB for department total
 function budget(x) {
  connection.query(budgetQuery,[x]);
 }
 
-let budgetQuery = "UPDATE department SET department.operating_budget = ( SELECT sum( employee_cms.job.salary) FROM employee_cms.job WHERE department_id =?) WHERE id =?;";
+let budgetQuery = "SELECT sum( employee_cms.job.salary) FROM employee_cms.job WHERE department_id =?;";
 
 function viewThisfromThat(SelItem,SelTbl){inquirer
     .prompt([
@@ -114,7 +133,7 @@ function mainMenu() {
     });
 };
 
-function viewMain(){
+function view(){
   inquirer.prompt([
     {
       name:"viewMain",
@@ -154,20 +173,20 @@ function viewMain(){
       type:"list",
       name:"jobTitles",
       message:"",
-      Choices:async function () {
+      choices:async function () {
         let things = await connection.query("SELECT * FROM job");
         
           let data = [];
-
-        // for (let i = 0; i < things.length; i++) {
-        //     let x = {};
-        //     x.name = things[i].name;
-        //     x.value = things[i].name;
-        //     data.push(x);
-        // }
-
-        console.log(things);
-
+            let y = {};
+            y.name= 'all';
+            y.value = 'all';
+            data.push(y);
+              for (let i = 0; i < things.length; i++) {
+                  let x = {};
+                  x.name = things[i].title;
+                  x.value = things[i].title;
+                  data.push(x);
+              }
         return data;
         
       },
@@ -179,11 +198,11 @@ function viewMain(){
       type:"list",
       name:"employeeChoices",
       message:"how would you like to view the company personell",
-      Choices:[
+      choices:[
         {name:"all",value:"all"},
         {name:"by manager",value:"manager"},
-        {name:"by department",value:"department"}
-      ],
+        {name:"by department",value:"department"},
+        ],
       when:function(responce){
         return responce.viewMain.indexOf('employee')>-1;
       }
@@ -192,19 +211,17 @@ function viewMain(){
       type:"list",
       name:"employees",
       message:"please select an employee",
-      Choices: async function () {
+      choices: async function () {
         let things = await connection.query("SELECT * FROM employee");
         
           let data = [];
 
-        // for (let i = 0; i < things.length; i++) {
-        //     let x = {};
-        //     x.name = things[i].name;
-        //     x.value = things[i].name;
-        //     data.push(x);
-        // }
-
-        console.log(things);
+        for (let i = 0; i < things.length; i++) {
+            let x = {};
+            x.name = things[i].first_name + " " + things[i].last_name;
+            x.value = things[i].first_name + " " + things[i].last_name;
+            data.push(x);
+        }
 
         return data;
         
@@ -215,21 +232,19 @@ function viewMain(){
     },
     {
       type:"list",
-      name:"byManager",
+      name:"employeeByManager",
       message:"please select an employee",
-      Choices: async function () {
-        let things = await connection.query("SELECT * FROM employee ");
+      choices: async function () {
+        let things = await connection.query("SELECT * FROM employee WHERE manager_id is null");
         
           let data = [];
 
-        // for (let i = 0; i < things.length; i++) {
-        //     let x = {};
-        //     x.name = things[i].name;
-        //     x.value = things[i].name;
-        //     data.push(x);
-        // }
-
-        console.log(things);
+        for (let i = 0; i < things.length; i++) {
+            let x = {};
+            x.name = things[i].first_name + " " + things[i].last_name;
+            x.value = things[i].first_name + " " + things[i].last_name;
+            data.push(x);
+        }
 
         return data;
         
@@ -240,19 +255,19 @@ function viewMain(){
     },
     {
       type:"list",
-      name:"employees",
-      message:"please select an employee",
-      Choices: async function () {
-        let things = await connection.query("SELECT * FROM employee");
+      name:"employeeByDepartmentChoice",
+      message:"please select a department",
+      choices: async function () {
+        let things = await connection.query("SELECT * FROM department");
         
           let data = [];
 
-        // for (let i = 0; i < things.length; i++) {
-        //     let x = {};
-        //     x.name = things[i].name;
-        //     x.value = things[i].name;
-        //     data.push(x);
-        // }
+        for (let i = 0; i < things.length; i++) {
+            let x = {};
+            x.name = things[i].name;
+            x.value = things[i].name;
+            data.push(x);
+        }
 
         console.log(things);
 
@@ -263,15 +278,11 @@ function viewMain(){
         return responce.employeeChoices.indexOf('department')>-1
       }
     },
-    {
-      type:"",
-      name:"",
-      message:"",
-      Choices:"",
-      when:function(){}
-    }
-  ])
-}
+  ]).then(function (responce){ console.log(responce);
+      })
+  
+
+};
 
 function ExitFunction() {
   connection.end();
