@@ -2,7 +2,8 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const myTable = require("console.table");
-const asciiArt = require("ascii-art");
+const asciiArt = require("ascii-logo");
+const conFig = require('../package.json');
 const util = require("util");
 // fs = require("fs");
 // path = require("path");
@@ -19,9 +20,9 @@ const connection = mysql.createConnection({
 connection.query = util.promisify(connection.query);
 connection.connect(function (err) {
   if (err) throw err;
-  // asciiArt.create("EMPLOYEE_CMS", "DOOM",function(rendered){
-
-  // })
+ 
+// render ascii logo
+console.log(logo(config).render());
 
   async function test(){
     let things = await connection.query("SELECT * FROM employee");
