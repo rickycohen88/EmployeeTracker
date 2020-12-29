@@ -279,8 +279,34 @@ function view(){
         return responce.employeeChoices.indexOf('department')>-1
       }
     },
-  ]).then(function (responce){ console.log(responce);
+  ]).then(function (responce){ switch(responce){
+
+    case responce.indexOf(employees):
+      query = responce.employees.value;
+      //somefunction(query);
+      break;
+    case responce.indexof(employeeByManager):
+      query = responce.employeeByManager.value;
+      //someFunction(query);
+      break;
+    case responce.indexof(employeeByDepartment):
+      query = responce.employeeByDepartment.value;
+      //someFunction(query);
+      break;
+    case responce.indexOf(jobTitles):
+      query = responce.jobTitles.value;
+      //someFunction(query);
+      break;
+    case responce.indexOf(departmentsChoice):
+      query = responce.departmentsChoice.value;
+      //someFunction(query);
+      break;
+    default:
+      console.log("you have hit the default switch case... whaaa whaaaaa.");
+
+  }
       })
+    .catch((err => {console.log("There was an ErRoR..with prompt",err);}));
   
 
 };
