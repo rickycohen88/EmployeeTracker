@@ -24,6 +24,43 @@ connection.connect(function (err) {
 // render ascii logo
 console.log(asciiArt(conFig).render());
 
+let testvar;
+let count = 0;
+function runlast(x){
+  
+  if(count == 0){
+   switch(x){
+     case 'test1':
+       count++;
+       test1();
+        break;
+      case 'test2':
+        count++;
+        test2();
+          break;
+   }
+  }
+   console.log("x was called");
+};
+
+
+
+function test1(){
+  console.log("first function called");
+  testvar = test1.name;
+  test2();
+
+};
+function test2(){
+  console.log("inside test2 function");
+  console.log(testvar);
+  testvar = test2.name;
+  runlast(testvar);
+
+};
+
+test1();
+
   async function test(){
     let things = await connection.query("SELECT * FROM employee");
     let data = [];
@@ -42,7 +79,7 @@ console.log(asciiArt(conFig).render());
         
   }
 
- mainMenu();
+// mainMenu();
 });
 // functions to Query DB for department total
 function budget(x) {
