@@ -1,4 +1,4 @@
-//Dependencies
+// //Dependencies
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const myTable = require("console.table");
@@ -20,9 +20,9 @@ const connection = mysql.createConnection({
 connection.query = util.promisify(connection.query);
 connection.connect(function (err) {
   if (err) throw err;
- 
+});
 // render ascii logo
-console.log(asciiArt(conFig).render());
+
 
 // let testvar;
 // let count = 0;
@@ -79,14 +79,11 @@ console.log(asciiArt(conFig).render());
         
 //   }
 
-mainMenu();
-});
-// functions to Query DB for department total
-function budget(x) {
- connection.query(budgetQuery,[x]);
-}
 
-let budgetQuery = "SELECT sum( employee_cms.job.salary) FROM employee_cms.job WHERE department_id =?;";
+// });
+
+
+
 
 function viewThisfromThat(SelItem,SelTbl){inquirer
     .prompt([
@@ -135,6 +132,12 @@ function viewThisfromThat(SelItem,SelTbl){inquirer
 // .then()
 // .catch();
 
+
+// functions to Query DB for department total
+
+
+
+
 const viewSomeTable = (selTbl) => {
     connection.query("SELECT * FROM ?",[selTbl], function (err, res) {
       if (err) throw err;
@@ -143,4 +146,4 @@ const viewSomeTable = (selTbl) => {
    
 };
 
-exports.viewSomeTable = viewSomeTable;
+

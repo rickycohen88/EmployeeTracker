@@ -5,7 +5,6 @@ const myTable = require("console.table");
 const asciiArt = require("asciiart-logo");
 const conFig = require('../package.json');
 const util = require("util");
-import viewSomeTable from viewSomeTable;
 // fs = require("fs");
 // path = require("path");
 // express = require("express");
@@ -19,16 +18,38 @@ const connection = mysql.createConnection({
   database: "employee_cms",
 });
 connection.query = util.promisify(connection.query);
+
+// query db for a table
+function viewTable(selTbl){
+  connection.query("SELECT * FROM ?",[selTbl],function(err, res){
+    if (err) throw err;
+    console.table(res);
+  });
+ 
+};
+
+// function to Query DB for department total
+
+function budget(x) {
+  let budgetQuery = "SELECT sum( employee_cms.job.salary) FROM employee_cms.job WHERE department_id =?;";
+  return connection.query(budgetQuery,[x]);
+  
+ };
+
+ //opens connection to db and calls mainMenu function.
 connection.connect(function (err) {
   if (err) throw err;
- 
 // render ascii logo
 console.log(asciiArt(conFig).render());
-
-
 //call main menu
 mainMenu();
 });
+
+//  opens connection to db and calls mainMenu function.
+//  connection.connect(function (err) {
+//   if (err) throw err;
+// connection.query()
+// });
 // main menu function
 function mainMenu() {
     inquirer
@@ -110,33 +131,92 @@ function view(){
           return responce.viewMain.indexOf('employee')>-1;
         }
       },
+      {
+        type:"list",
+        name:"employeeChoices",
+        message:"how would you like to view the company personell",
+        choices:async function(){
+             let things = await connection.query("SELECT * FROM employee_cms.employee WHERE manager_id is null;");
+             let data = [];
+          for (let i = 0; i < things.length; i++) {
+                let x = {};
+                x.name = things[i].first_name +things[i].last_name;
+                x.value = things[i].first_name + things[i].last_name;
+                data.push(x);
+          }
+         return data;
+        },
+        when:function(responce){
+          return responce.employeeChoices.indexOf('manager')>-1;
+        }
+      },
+      {
+        type:"list",
+        name:"employeeChoices",
+        message:"how would you like to view the company personell",
+        choices:async function(){
+          let things = await connection.query("SELECT name FROM department;");
+          let data = [];
+          for (let i = 0; i < things.length; i++) {
+             let x = {};
+             x.name = things[i].name;
+             x.value = things[i].name;
+             data.push(x);
+          }
+          return data;
+        },
+        when:function(responce){
+          return responce.employeeChoices.indexOf('department')>-1;
+        }
+      },
      
-    ]).then(function (responce){ switch(responce){
+    ]).then(function (responce){ 
+      console.log(responce);
+      // if(responce.viewMain.indexOf('departments')>-1){
+      //   query ='employee_cms.department;';
+      //   viewTable(query);
+      //   mainMenu();
+      // };
 
-        case responce.indexOf('employeeChoices'):
-          
-          //somefunction(query);
+      switch(true){
+
+        case (responce.employeeChoices>-1):
+            if(responce.employeeChoices.indexOf('all')>-1){
+              connection.query("SELECT * FROM job;",function(err,res){
+                if(err) throw err;
+                console.table(res);
+                mainMenu();
+              });
+            };
+            if(responce.employeeChoices.indexOf('manager')){
+              connection.query("SELECT * FROM job;",function(err,res){
+                if(err) throw err;
+                console.table(res);
+                mainMenu();
+              });
+            }
           break;
-        case responce.indexof('titleMain'):
+        case (responce.titleMain>-1):
           
           //someFunction(query);
           break;
-        case responce.viewMain.indexof('departments'):
-          query = 'SELECT * FROM employee_cms.department;';
-          x = viewSomeTable(query);
-          console.table(x);
-          mainMenu();
-          //someFunction(query);
+        case (responce.viewMain.indexOf('departments')>-1):
+          connection.query("SELECT * FROM department;",function(err,res){
+            if(err) throw err;
+            console.table(res);
+            mainMenu();
+          });
           break;
-          case responce.viewMain.indexOf('backToMain'):
+          case (responce.backToMain>-1):
             mainMenu();
             break;
         default:
           console.log("you have hit the default switch case... whaaa whaaaaa.");
+          mainMenu();
     
-      }
-          })
-        .catch((err => {console.log("There was an ErRoR..with prompt",err);}));
+      };
+    })
+    .catch((err => {console.log("There was an ErRoR..with prompt",err);}));
       
 };
 
