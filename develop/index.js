@@ -5,6 +5,7 @@ const myTable = require("console.table");
 const asciiArt = require("asciiart-logo");
 const conFig = require('../package.json');
 const util = require("util");
+const { restoreDefaultPrompts } = require("inquirer");
 // fs = require("fs");
 // path = require("path");
 // express = require("express");
@@ -36,6 +37,26 @@ function budget(x) {
   
  };
 
+ // aysnc function to be used for queries outside of choices in prompt when await needed for variables
+ async function getMgId(){
+  let things = await connection.query("SELECT * FROM employee");
+  let data = [];
+
+      for (let i = 0; i < things.length; i++) {
+          let x = {};
+          x.name = things[i].first_name +things[i].last_name;
+          x.value = things[i].first_name + things[i].last_name;
+          data.push(x);
+      }
+
+      console.log(data);
+      console.log(things);
+
+      return data;
+      
+};
+
+
  //opens connection to db and calls mainMenu function.
 connection.connect(function (err) {
   if (err) throw err;
@@ -63,7 +84,7 @@ function mainMenu() {
                name: "view departments,Job Titles,Employees,Managers",
               value: "view",
             },
-            {  name: "change departments, roles, employees or Managers", 
+            {  name: "change or add departments, roles, employees or Managers", 
               value: "change" 
             },
             {  name: "Exit the Program.",
@@ -133,15 +154,16 @@ function view(){
       },
       {
         type:"list",
-        name:"employeeChoices",
+        name:"employeeManager",
         message:"how would you like to view the company personell",
         choices:async function(){
              let things = await connection.query("SELECT * FROM employee_cms.employee WHERE manager_id is null;");
              let data = [];
           for (let i = 0; i < things.length; i++) {
                 let x = {};
-                x.name = things[i].first_name +things[i].last_name;
-                x.value = things[i].first_name + things[i].last_name;
+                x.name = things[i].first_name+" "+things[i].last_name;
+                //x.value = things[i].first_name+" "+things[i].last_name;
+                x.value = things[i].id;
                 data.push(x);
           }
          return data;
@@ -152,7 +174,7 @@ function view(){
       },
       {
         type:"list",
-        name:"employeeChoices",
+        name:"employeeDepartment",
         message:"how would you like to view the company personell",
         choices:async function(){
           let things = await connection.query("SELECT name FROM department;");
@@ -180,21 +202,30 @@ function view(){
 
       switch(true){
 
-        case (responce.employeeChoices>-1):
-            if(responce.employeeChoices.indexOf('all')>-1){
+        case (responce.employeeChoices.indexOf('all')>-1):
               connection.query("SELECT * FROM job;",function(err,res){
                 if(err) throw err;
                 console.table(res);
                 mainMenu();
               });
-            };
-            if(responce.employeeChoices.indexOf('manager')){
-              connection.query("SELECT * FROM job;",function(err,res){
+          break;
+        case(responce.employeeChoices.indexOf('manager')>-1):
+        let buildQuery = responce.employeeManager;
+              // let managerName = responce.employeeManager.split(" ");
+              // console.log(managerName);
+              // let firstN = managerName[0].trim();
+              // let lastN = managerName[1].trim();
+              // connection.query("SELECT * FROM employee WHERE first_name = ? AND last_name = ?;",[firstN,lastN],function(err,res){
+              //                     if(err) throw err;
+              //                      return res.id;
+              //                   });               
+              
+              connection.query("SELECT * FROM employee WHERE manager_id = ?",buildQuery,function(err,res){
                 if(err) throw err;
                 console.table(res);
                 mainMenu();
               });
-            }
+              // mainMenu();
           break;
         case (responce.titleMain>-1):
           
