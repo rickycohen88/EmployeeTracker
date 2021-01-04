@@ -513,7 +513,22 @@ function change(){
 
         break;
       case (responce.addSelection.indexOf('job')>-1):
-
+            let newTitle = responce.addInputTitle;
+            let newSalary = responce.addInputSalary;
+            let newDepartmentID = responce.addDepartmentRole;
+            let newDepartmentNumber;
+            async function getidnumber(){
+              await connection.query("SELECT * FROM department WHERE name = ?",[newDepartmentID],function(err,res){
+                if(err) throw err;
+                newDepartmentNumber = responce.name;
+              });
+              getidnumber();
+              connection.query("INSERT INTO job(title,salary,department_id) VALUES(?,?,?)",[newTitle,newSalary,newDepartmentNumber],function(err,res){
+                if(err) throw err;
+                console.table(res);
+              })
+              
+            };
           break;
       case (responce.addSelection.indexOf('emp')>-1):
 
