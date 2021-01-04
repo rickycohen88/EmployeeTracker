@@ -6,6 +6,7 @@ const asciiArt = require("asciiart-logo");
 const conFig = require('../package.json');
 const util = require("util");
 const { restoreDefaultPrompts } = require("inquirer");
+const { connect } = require("http2");
 // fs = require("fs");
 // path = require("path");
 // express = require("express");
@@ -141,6 +142,31 @@ function view(){
       },
       {
         type:"list",
+        name:"titleDepartment",
+        message:"Which department? ",
+        choices:async function(){
+          let things = await connection.query("SELECT * FROM employee_cms.department;");
+          let data = [];
+          for (let i = 0; i < things.length; i++) {
+             let x = {};
+             x.name = things[i].name;
+             x.value = things[i].id;
+             data.push(x);
+          }
+          return data;
+        },
+        when:function(responce){
+          if(responce.viewMain.indexOf('roles')>-1){
+              if(responce.titleMain.indexOf('dept')>-1){
+                return true;
+              }
+              else{return false;}
+          }
+          else{return false;}
+        }
+      },
+      {
+        type:"list",
         name:"employeeChoices",
         message:"how would you like to view the company personell",
         choices:[
@@ -155,81 +181,96 @@ function view(){
       {
         type:"list",
         name:"employeeManager",
-        message:"how would you like to view the company personell",
+        message:"how would you like to view the company personnell",
         choices:async function(){
-             let things = await connection.query("SELECT * FROM employee_cms.employee WHERE manager_id is null;");
+             let things = await connection.query("SELECT * FROM employee WHERE manager_id IS NULL;");
              let data = [];
           for (let i = 0; i < things.length; i++) {
                 let x = {};
                 x.name = things[i].first_name+" "+things[i].last_name;
-                //x.value = things[i].first_name+" "+things[i].last_name;
                 x.value = things[i].id;
                 data.push(x);
           }
          return data;
         },
         when:function(responce){
-          return responce.employeeChoices.indexOf('manager')>-1;
+          if(responce.employeeChoices == 'manager'){
+            return true;
+          }
+          else{return false;}
         }
       },
       {
         type:"list",
         name:"employeeDepartment",
-        message:"how would you like to view the company personell",
+        message:"how would you like to view the company personnell",
         choices:async function(){
-          let things = await connection.query("SELECT name FROM department;");
+          let things = await connection.query("SELECT * FROM department;");
           let data = [];
           for (let i = 0; i < things.length; i++) {
              let x = {};
              x.name = things[i].name;
-             x.value = things[i].name;
+             x.value = things[i].id;
              data.push(x);
           }
           return data;
         },
         when:function(responce){
-          return responce.employeeChoices.indexOf('department')>-1;
+          if(responce.employeeChoices == 'department'){
+            return true;
         }
+          else{return false};
+          
+        },
+        
       },
      
     ]).then(function (responce){ 
       console.log(responce);
-      // if(responce.viewMain.indexOf('departments')>-1){
-      //   query ='employee_cms.department;';
-      //   viewTable(query);
-      //   mainMenu();
-      // };
-
+      let buildQuery;
       switch(true){
+        
+        case (responce.employeeChoices =='all'):
+              connection.query("SELECT * FROM employee;",function(err,res){
+                if(err) throw err;
+                console.table(res);
+                mainMenu();
+              });
+          break;
+        case(responce.employeeChoices =='manager'):
+              buildQuery = responce.employeeManager;
+             connection.query("SELECT * FROM employee WHERE manager_id = ?",[buildQuery],function(err,res){
+                if(err) throw err;
+                console.table(res);
+                mainMenu();
+              });
+          break;
 
-        case (responce.employeeChoices.indexOf('all')>-1):
-              connection.query("SELECT * FROM job;",function(err,res){
-                if(err) throw err;
+          case(responce.employeeChoices =='department'):
+                buildQuery = responce.employeeDepartment;
+               connection.query("SELECT * FROM employee_cms.employee WHERE role_id in (SELECT id FROM employee_cms.job WHERE department_id = ?);",
+               [buildQuery],function(err,res){ if(err) throw err;
                 console.table(res);
                 mainMenu();
-              });
+               });
+            break;
+        
+        case (responce.titleMain =='all'):
+          connection.query("SELECT * FROM job",function(err,res){
+            if(err) throw err;
+            console.table(res);
+            mainMenu();
+          });
           break;
-        case(responce.employeeChoices.indexOf('manager')>-1):
-        let buildQuery = responce.employeeManager;
-              // let managerName = responce.employeeManager.split(" ");
-              // console.log(managerName);
-              // let firstN = managerName[0].trim();
-              // let lastN = managerName[1].trim();
-              // connection.query("SELECT * FROM employee WHERE first_name = ? AND last_name = ?;",[firstN,lastN],function(err,res){
-              //                     if(err) throw err;
-              //                      return res.id;
-              //                   });               
-              
-              connection.query("SELECT * FROM employee WHERE manager_id = ?",buildQuery,function(err,res){
-                if(err) throw err;
-                console.table(res);
-                mainMenu();
-              });
-              // mainMenu();
-          break;
-        case (responce.titleMain>-1):
-          
-          //someFunction(query);
+        case (responce.titleMain =='dept'):
+          buildQuery = responce.titleDepartment;
+          console.log(buildQuery);
+          console.log(typeof(buildQuery));
+          connection.query("SELECT * FROM job WHERE department_id = ?",[buildQuery],function(err,res){
+            if(err) throw err;
+            console.table(res);
+            mainMenu();
+          });
           break;
         case (responce.viewMain.indexOf('departments')>-1):
           connection.query("SELECT * FROM department;",function(err,res){
@@ -258,7 +299,7 @@ function change(){
     {
       type:"list",
       name:"changeMain",
-      message:"",
+      message:"What would you like to do?",
       choices:[
         {name:"Add(department, title/role or employee)",value:"Add"},
         {name:"Change(department, title/role or employee)",value:"Change"},

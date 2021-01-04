@@ -1,0 +1,1 @@
+SELECT * FROM employee_cms.employee WHERE role_id in (SELECT id FROM employee_cms.job WHERE department_id = 3);
