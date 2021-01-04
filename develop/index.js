@@ -264,8 +264,6 @@ function view(){
           break;
         case (responce.titleMain =='dept'):
           buildQuery = responce.titleDepartment;
-          console.log(buildQuery);
-          console.log(typeof(buildQuery));
           connection.query("SELECT * FROM job WHERE department_id = ?",[buildQuery],function(err,res){
             if(err) throw err;
             console.table(res);
@@ -325,6 +323,16 @@ function change(){
       message:"Please enter the name for the department.",
       when:function(responce){
         return responce.addSelection.indexOf('dept')>-1;
+      },
+      validate:function(input){
+        let regex = /['"`+*-]/;
+        let x = input.search(regex);
+        if(x == -1){
+          return true;
+        }
+        else{
+          return false;
+        };
       }
     },
     {
@@ -337,15 +345,13 @@ function change(){
     },
     {name:"addDepartmentManagerFirst",
      type:"input",
-     message:"Please enter the last name of the manager. No caracters besides letters will be accepted. Should you get an invalid responce you will need to delete the entry that is invalid.ease enter the first name of the manager. No caracters besides letters will be accepted.",
+     message:"Please enter the first name of the manager. No caracters besides letters will be accepted. Should you get an invalid responce you will need to delete the entry that is invalid.ease enter the first name of the manager. No caracters besides letters will be accepted.",
      when:function(responce){
       return responce.addDepartmentManagerConfirm === true;
      },
      validate:function(input){
-       console.log(input);
-       let regex = /[~^*()#@$%&!?,<>|-{}\[\]:;+\\ \.\/\'\`\"0-9]/g;
+       let regex = /['"`+*-]/;
        let x = input.search(regex);
-       console.log(x)
        if(x == -1){
          return true;
        }
@@ -361,10 +367,8 @@ function change(){
       return responce.addDepartmentManagerConfirm === true;
      },
      validate:function(input){
-      console.log(input);
-      let regex = /[~^*()#@$%&!?,<>|-{}\[\]:;+\\ \.\/\'\`\"0-9]/g;
+      let regex = /['"`+*-]/;
       let x = input.search(regex);
-      console.log(x);
       if(x == -1){
         return true;
       }
@@ -379,10 +383,147 @@ function change(){
       message:"Please enter the name for the Role/Title.",
       when:function(responce){
         return responce.addSelection.indexOf('job')>-1;
-      }
+      },
+      validate:function(input){
+        let regex = /['"`+*-]/;
+        let x = input.search(regex);
+        if(x == -1){
+          return true;
+        }
+        else{
+          return false;
+        };
+       }
+    },
+    {
+      name:"addInputSalary",
+      type:"number",
+      message:"Please enter the salary for the role",
+      when:function(responce){
+        return responce.addSelection.indexOf('job')>-1;
+      },
+      validate:function(input){
+        if(typeof(input)=='number'){
+          return true;
+        }
+        else{
+          return false;
+        };
+       }
+    },
+    {
+      type:"list",
+      name:"addDepartmentRole",
+      message:"what department will this role be a part of?",
+      choices:async function(){
+        let things = await connection.query("SELECT * FROM department;");
+        let data = [];
+        for (let i = 0; i < things.length; i++) {
+           let x = {};
+           x.name = things[i].name;
+           x.value = things[i].id;
+           data.push(x);
+        }
+        return data;
+      },
+      when:function(responce){
+        return responce.addSelection.indexOf('job')>-1;
+      },
+    },
+    {
+      name:"employeeFirstName",
+      type:"input",
+      message:"Please enter the first name for the employee.",
+      when:function(responce){
+        return responce.addSelection.indexOf('emp')>-1;
+      },
+      validate:function(input){
+        let regex = /['"`+*-]/;
+        let x = input.search(regex);
+        if(x == -1){
+          return true;
+        }
+        else{
+          return false;
+        };
+       }
+    },
+    {
+      name:"employeeLastName",
+      type:"input",
+      message:"Please enter the first name for the employee.",
+      when:function(responce){
+        return responce.addSelection.indexOf('emp')>-1;
+      },
+      validate:function(input){
+        let regex = /['"`+*-]/;
+        let x = input.search(regex);
+        if(x == -1){
+          return true;
+        }
+        else{
+          return false;
+        };
+       }
+    },
+    {
+      type:"list",
+      name:"employeeRole",
+      message:"what role will this employee fill?",
+      choices:async function(){
+        let things = await connection.query("SELECT * FROM job;");
+        let data = [];
+        for (let i = 0; i < things.length; i++) {
+           let x = {};
+           x.name = things[i].title;
+           x.value = things[i].id;
+           data.push(x);
+        }
+        return data;
+      },
+      when:function(responce){
+        return responce.addSelection.indexOf('emp')>-1;
+      },
     },
 
-  ]).then(function(responce){console.log(responce);})
+
+  ])
+  //start of then statement
+  .then(function(responce){
+    console.log(responce);
+    switch(true){
+      case (responce.addSelection.indexOf('dept')>-1):
+            let newDeptName;
+            let newDeptManager;
+            if(responce.addDepartmentManagerConfirm == true){
+              newDeptName = responce.addInputDepartment;
+              newDeptManager = responce.addDepartmentManagerFirst+"_"+responce.addDepartmentManagerLast;
+              connection.query("INSERT INTO department(name,manager) VALUES(?,?)",[newDeptName,newDeptManager],function(err,res){
+                if(err) throw err;
+                console.table(res);
+              });
+            }
+            else{
+              newDeptName = responce.addInputDepartment;
+              connection.query("INSERT INTO department(name) VALUES(?)",[newDeptName],function(err,res){
+                if(err) throw err;
+                console.table(res);
+              });
+            }
+
+        break;
+      case (responce.addSelection.indexOf('job')>-1):
+
+          break;
+      case (responce.addSelection.indexOf('emp')>-1):
+
+            break;
+      default :
+      console.log("you have hit the default switch case in 'change'... whaaa whaaaaa.");
+          mainMenu();
+    };
+    
+    mainMenu();})
 };
 
 

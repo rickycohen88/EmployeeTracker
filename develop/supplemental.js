@@ -80,7 +80,9 @@
   };
 
 
+  let regex = [/~#@$%&!?,<>|-:;+.'`"/g];
 
+  console.log(regex);
 
 
 
