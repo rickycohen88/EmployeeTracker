@@ -705,7 +705,7 @@ function change(){
         let data = [];
         for (let i = 0; i < things.length; i++) {
            let x = {};
-           x.name = things[i].firstname + " " + things[i].last_name;
+           x.name = things[i].first.name + " " + things[i].last_name;
            x.value = things[i].id;
            data.push(x);
         }
