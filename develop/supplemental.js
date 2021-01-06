@@ -1,26 +1,26 @@
-// // //Dependencies
-// const inquirer = require("inquirer");
-// const mysql = require("mysql");
-// const myTable = require("console.table");
-// const asciiArt = require("asciiart-logo");
-// const conFig = require('../package.json');
-// const util = require("util");
-// // fs = require("fs");
-// // path = require("path");
-// // express = require("express");
+// //Dependencies
+const inquirer = require("inquirer");
+const mysql = require("mysql");
+const myTable = require("console.table");
+const asciiArt = require("asciiart-logo");
+const conFig = require('../package.json');
+const util = require("util");
+// fs = require("fs");
+// path = require("path");
+// express = require("express");
 
-// //MySQL Database Connection
-// const connection = mysql.createConnection({
-//   host: "localhost",
-//   port: 3306,
-//   user: "root",
-//   password: "2951367",
-//   database: "employee_cms",
-// });
-// connection.query = util.promisify(connection.query);
-// connection.connect(function (err) {
-//   if (err) throw err;
-// });
+//MySQL Database Connection
+const connection = mysql.createConnection({
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "2951367",
+  database: "employee_cms",
+});
+connection.query = util.promisify(connection.query);
+connection.connect(function (err) {
+  if (err) throw err;
+});
 // render ascii logo
 
 
@@ -61,28 +61,28 @@
 
 // // test1();
 
-  async function test(){
-    let things = await connection.query("SELECT * FROM employee");
-    let data = [];
+  // async function test(){
+  //   let things = await connection.query("SELECT * FROM employee");
+  //   let data = [];
 
-        for (let i = 0; i < things.length; i++) {
-            let x = {};
-            x.name = things[i].first_name +things[i].last_name;
-            x.value = things[i].first_name + things[i].last_name;
-            data.push(x);
-        }
+  //       for (let i = 0; i < things.length; i++) {
+  //           let x = {};
+  //           x.name = things[i].first_name +things[i].last_name;
+  //           x.value = things[i].first_name + things[i].last_name;
+  //           data.push(x);
+  //       }
 
-        console.log(data);
-        console.log(things);
+  //       console.log(data);
+  //       console.log(things);
 
-        return data;
+  //       return data;
         
-  };
+  // };
 
 
-  let regex = [/~#@$%&!?,<>|-:;+.'`"/g];
+  // let regex = [/~#@$%&!?,<>|-:;+.'`"/g];
 
-  console.log(regex);
+  // console.log(regex);
 
 
 
@@ -152,5 +152,54 @@
 //     });
    
 // };
+
+
+let findRole = 9;
+let employeeFirst = 'john';
+let employeeLast = 'doe';
+let findDepartment;
+let managerID;
+let managerA;
+let managerFirst;
+let managerLast;
+let blank = async () =>{
+    await connection.query("SELECT * FROM job WHERE id = ?",[findRole],function(err,res){
+      if(err) throw err;
+      mmm = res;
+      console.log("mmm");
+      findDepartment = mmm.department_id;
+    }.then(await connection.query("SELECT * FROM department WHERE id = ?",[findDepartment],function(err,res){
+        if(err) throw res;
+        nnn = res;
+        managerA = nnn.manager;
+        managerB = managerA.split("_");
+        managerFirst = managerB[0];
+        managerLast = manager[1];
+        console.log("nnn");
+
+      }.then(await connection.query("SELECT * FROM employee WHERE first_name = ? AND last_name = ?",[managerFirst,managerLast],function(err,res){
+      if(err) throw res;
+      bbb = res;
+      managerID = bbb.id;
+      console.log("bbb");
+    })))));
+      
+    
+blank();
+
+
+  console.log(managerID);
+  console.log(managerFirst);
+  console.log(managerLast);
+  console.log(managerA);
+  
+
+  connection.query("INSERT INTO employee(first_name,last_name,role_id,manager_id)VALUES(?,?,?,?)",[employeeFirst,employeeLast,findRole,managerID],function(err,res){
+    if(err) throw err
+    console.table(res)
+   });
+  };
+
+
 
 

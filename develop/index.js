@@ -7,6 +7,7 @@ const conFig = require('../package.json');
 const util = require("util");
 const { restoreDefaultPrompts } = require("inquirer");
 const { connect } = require("http2");
+const { Console } = require("console");
 // fs = require("fs");
 // path = require("path");
 // express = require("express");
@@ -130,6 +131,43 @@ function view(){
         ]
       },
       {
+        name:"departmentBudgetConfirm",
+        type:"confirm",
+        message:"would you like to view the operating budget of a department?",
+        when:function(responce){
+          return responce.viewMain.indexOf('departments')>-1;
+        },
+      },
+      {
+        name:"departmentBudget",
+        type:"list",
+        message:"Which departments budget would you like to view?",
+        choices:async function(){
+          let things = await connection.query("SELECT * FROM department;");
+          let data = [];
+          for (let i = 0; i < things.length; i++) {
+             let x = {};
+             x.name = things[i].name;
+             x.value = things[i].id;
+             data.push(x);
+          }
+          return data;
+        },
+        when:function(responce){
+          if(responce.viewMain.indexOf('departments')>-1){
+            if(responce.departmentBudgetConfirm== true){
+              return true;
+            }
+            else{
+              return false;
+            }
+          }
+          else{
+            return false;
+          }
+        },
+      },
+      {
         type:"list",
         name:"titleMain",
         message:"Would you like to look by department or all? ",
@@ -145,7 +183,7 @@ function view(){
         name:"titleDepartment",
         message:"Which department? ",
         choices:async function(){
-          let things = await connection.query("SELECT * FROM employee_cms.department;");
+          let things = await connection.query("SELECT * FROM department;");
           let data = [];
           for (let i = 0; i < things.length; i++) {
              let x = {};
@@ -226,8 +264,14 @@ function view(){
       },
      
     ]).then(function (responce){ 
-      console.log(responce);
+      
       let buildQuery;
+      if(responce.departmentBudgetConfirm){
+        connection.query("SELECT sum(job.salary) FROM employee_cms.job WHERE department_id =?",[responce.departmentBudget],function(err,res){
+          if(err) throw err;
+          console.table(res);
+        });
+      };
       switch(true){
         
         case (responce.employeeChoices =='all'):
@@ -299,9 +343,8 @@ function change(){
       name:"changeMain",
       message:"What would you like to do?",
       choices:[
-        {name:"Add(department, title/role or employee)",value:"Add"},
-        {name:"Change(department, title/role or employee)",value:"Change"},
-        {name:"Delete(department, title/role or employee)",value:"Delete"}
+        {name:"Add(department, title/role or employee)",value:"add"},
+        {name:"Change or Delete(department, title/role or employee)",value:"change"}
       ]
     },
     {
@@ -314,7 +357,12 @@ function change(){
         {name:"An employee",value:"emp"}
       ],
       when:function(responce){
-        return responce.changeMain.indexOf('Add')>-1;
+        if(responce.changeMain.indexOf('add')>-1){
+          return true;
+        }
+        else{
+          return false;
+        }
       }
     },
     {
@@ -322,7 +370,17 @@ function change(){
       type:"input",
       message:"Please enter the name for the department.",
       when:function(responce){
-        return responce.addSelection.indexOf('dept')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('dept')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
       validate:function(input){
         let regex = /['"`+*-]/;
@@ -340,7 +398,17 @@ function change(){
       type:"confirm",
       message:"would you like to add a manager?",
       when:function(responce){
-        return responce.addSelection.indexOf('dept')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('dept')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       }
     },
     {name:"addDepartmentManagerFirst",
@@ -382,7 +450,17 @@ function change(){
       type:"input",
       message:"Please enter the name for the Role/Title.",
       when:function(responce){
-        return responce.addSelection.indexOf('job')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('job')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
       validate:function(input){
         let regex = /['"`+*-]/;
@@ -400,7 +478,17 @@ function change(){
       type:"number",
       message:"Please enter the salary for the role",
       when:function(responce){
-        return responce.addSelection.indexOf('job')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('job')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
       validate:function(input){
         if(typeof(input)=='number'){
@@ -427,7 +515,17 @@ function change(){
         return data;
       },
       when:function(responce){
-        return responce.addSelection.indexOf('job')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('job')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
     },
     {
@@ -435,7 +533,17 @@ function change(){
       type:"input",
       message:"Please enter the first name for the employee.",
       when:function(responce){
-        return responce.addSelection.indexOf('emp')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('emp')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
       validate:function(input){
         let regex = /['"`+*-]/;
@@ -453,7 +561,17 @@ function change(){
       type:"input",
       message:"Please enter the first name for the employee.",
       when:function(responce){
-        return responce.addSelection.indexOf('emp')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('emp')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
       validate:function(input){
         let regex = /['"`+*-]/;
@@ -482,8 +600,159 @@ function change(){
         return data;
       },
       when:function(responce){
-        return responce.addSelection.indexOf('emp')>-1;
+        if(responce.addSelection){
+          if(responce.addSelection.indexOf('emp')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
       },
+    },
+    {
+      type:"list",
+      name:"changeHow",
+      message:"Would you like to change or delete something?",
+      choices:[
+        {name:"Change",value:"change"},
+        {name:"Delete",value:"delete"}
+      ],
+      when:function(responce){
+        return responce.changeMain.indexOf('change')>-1;
+      },
+    },
+    {
+      type:"list",
+      name:"changeWhat",
+      message:"what would you like to change?",
+      choices:[
+        {name:"Department",value:"dep"},
+        {name:"Role",value:"job"},
+        {name:"Employee",value:"emp"}
+      ],
+      when:function(responce){
+        return responce.changeMain.indexOf('change')>-1;
+      },
+    },
+    {
+      type:"list",
+      name:"changeDepartment",
+      message:"which department would you like to change",
+      choices:async function(){
+        let things = await connection.query("SELECT * FROM department;");
+        let data = [];
+        for (let i = 0; i < things.length; i++) {
+           let x = {};
+           x.name = things[i].name;
+           x.value = things[i].id;
+           data.push(x);
+        }
+        return data;
+      },
+      when:function(responce){
+        if(responce.changeWhat){
+          if(responce.changeWhat.indexOf('dep')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+        }
+        else{
+          return false;
+        }
+      }
+    },
+    {
+      type:"list",
+      name:"changeRole",
+      message:"which role would you like to change",
+      choices:async function(){
+        let things = await connection.query("SELECT * FROM job;");
+        let data = [];
+        for (let i = 0; i < things.length; i++) {
+           let x = {};
+           x.name = things[i].title;
+           x.value = things[i].id;
+           data.push(x);
+        }
+        return data;
+      },
+      when:function(responce){
+        if(responce.changeWhat){
+          if(responce.changeWhat.indexOf('job')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+      }
+      else{
+        return false;
+      }
+      }
+    },
+    {
+      type:"list",
+      name:"changeEmployee",
+      message:"which employee would you like to change",
+      choices:async function(){
+        let things = await connection.query("SELECT * FROM employee;");
+        let data = [];
+        for (let i = 0; i < things.length; i++) {
+           let x = {};
+           x.name = things[i].firstname + " " + things[i].last_name;
+           x.value = things[i].id;
+           data.push(x);
+        }
+        return data;
+      },
+      when:function(responce){
+        if(responce.changeWhat){
+          if(responce.changeWhat.indexOf('emp')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+      }
+      else{
+        return false;
+      }
+      }
+    },
+    {
+      type:"list",
+      name:"changeEmployeeJob",
+      message:"which role will the employee fill",
+      choices:async function(){
+        let things = await connection.query("SELECT * FROM job;");
+        let data = [];
+        for (let i = 0; i < things.length; i++) {
+           let x = {};
+           x.name = things[i].title;
+           x.value = things[i].id;
+           data.push(x);
+        }
+        return data;
+      },
+      when:function(responce){
+        if(responce.changeWhat){
+          if(responce.changeWhat.indexOf('emp')>-1){
+            return true;
+          }
+          else{
+            return false;
+          }
+      }
+      else{
+        return false;
+      }
+      }
     },
 
 
@@ -492,7 +761,7 @@ function change(){
   .then(function(responce){
     console.log(responce);
     switch(true){
-      case (responce.addSelection.indexOf('dept')>-1):
+      case (responce.addSelection =='dept'):
             let newDeptName;
             let newDeptManager;
             if(responce.addDepartmentManagerConfirm == true){
@@ -501,6 +770,7 @@ function change(){
               connection.query("INSERT INTO department(name,manager) VALUES(?,?)",[newDeptName,newDeptManager],function(err,res){
                 if(err) throw err;
                 console.table(res);
+                mainMenu();
               });
             }
             else{
@@ -508,31 +778,119 @@ function change(){
               connection.query("INSERT INTO department(name) VALUES(?)",[newDeptName],function(err,res){
                 if(err) throw err;
                 console.table(res);
+                mainMenu();
               });
             }
 
         break;
-      case (responce.addSelection.indexOf('job')>-1):
+      case (responce.addSelection=='job'):
             let newTitle = responce.addInputTitle;
             let newSalary = responce.addInputSalary;
             let newDepartmentID = responce.addDepartmentRole;
-            let newDepartmentNumber;
-            async function getidnumber(){
-              await connection.query("SELECT * FROM department WHERE name = ?",[newDepartmentID],function(err,res){
-                if(err) throw err;
-                newDepartmentNumber = responce.name;
-              });
-              getidnumber();
-              connection.query("INSERT INTO job(title,salary,department_id) VALUES(?,?,?)",[newTitle,newSalary,newDepartmentNumber],function(err,res){
-                if(err) throw err;
-                console.table(res);
-              })
-              
-            };
+            connection.query("INSERT INTO job(title,salary,department_id) VALUES(?,?,?)",[newTitle,newSalary,newDepartmentID],function(err,res){
+              if(err) throw err;
+              console.table(res);
+              mainMenu();
+            });
           break;
-      case (responce.addSelection.indexOf('emp')>-1):
+      case (responce.addSelection=='emp'): 
+              let findRole = responce.employeeRole;
+              let employeeFirst = responce.employeeFirstName;
+              let employeeLast = responce.employeeLastName;
+              // let managerID;
+              // let managerA;
+              // let managerB;
+              // let managerFirst;
+              // let managerLast;
+              // let blank = async (insert) =>{
+              //     await connection.query("SELECT * FROM job WHERE id = ?",[insert],function(err,res){
+              //       if(err) throw err;
+              //       something(res.department_id);
+              //     });
+              // };
+              /*
+                  SELECT *
+                    FROM job AS j
+                    JOIN department AS d ON j.department_id = d.id
+                   WHERE j.id = (
+                         SELECT id 
+                           FROM role 
+                          WHERE role = 'manager' 
+                            AND )
+                   )
+              */
+             /*
+               SELECT e.id
+               from employee e
+               where e.roleId = {
+                SELECT id 
+                           FROM role 
+                          WHERE role = 'manager' 
+                             )
+               } AND e.departmentID = ??
+             */
+              // let something = async (insert)=>{
+              //   await connection.query("SELECT * FROM department WHERE id = ?",[insert],function(err,res){
+              //   if(err) throw res;
+              //   managerA = res.manager;
+              //   managerB = managerA.split("_");
+              //   managerFirst = managerB[0];
+              //   managerLast = manager[1];
+              //    nextThing(managerFirst,managerLast);
+              //   });
+              // };
 
+              // let nextThing = async (insert,nextert)=>{
+              //   await connection.query("SELECT * FROM employee WHERE first_name = ? AND last_name = ?",[insert,nextert],function(err,res){
+              //     if(err) throw res;
+              //     managerID = res.id;
+                  
+              //     });
+              //   };
+
+                // blank(findRole);
+                 connection.query("INSERT INTO employee(first_name,last_name,role_id,manager_id)VALUES(?,?,?,?)",[employeeFirst,employeeLast,findRole,managerID],function(err,res){
+                  if(err) throw err
+                  console.table(res)
+                  mainMenu();
+                 });
             break;
+            case (responce.changeHow=='delete') :
+              if(responce.changeWhat.indexOf('dep')>-1){
+                connection.query("DELETE FROM department WHERE id =?",[responce.changeDepartment],function(err,res){
+                  if(err) throw err;
+                  console.table(res);
+                  
+                });
+              };
+              if(responce.changeWhat.indexOf('job')>-1){
+                connection.query("DELETE FROM job WHERE id =?",[responce.changeRole],function(err,res){
+                  if(err) throw err;
+                  console.table(res);
+                  
+                });
+              };
+              if(responce.changeWhat.indexOf('emp')>-1){
+                connection.query("DELETE FROM employee WHERE id =?",[responce.changeEmployee],function(err,res){
+                  if(err) throw err;
+                  console.table(res);
+                  
+                });
+              };
+              mainMenu();
+              break;
+              case (responce.changeHow=='change') :
+              
+              if(responce.changeWhat.indexOf('emp')>-1){
+                connection.query("UPDATE employee SET employee.role_id = ? WHERE id = ?",[responce.changeEmployeeJob,responce.changeEmployee],function(err,res){
+                  if(err) throw err;
+                  console.table(res);
+                  
+                });
+              };
+              mainMenu();
+              break;
+              
       default :
       console.log("you have hit the default switch case in 'change'... whaaa whaaaaa.");
           mainMenu();
@@ -540,34 +898,3 @@ function change(){
     
     mainMenu();})
 };
-
-
-
-
-
-
-
-
-  // {
-  //   type:"list",
-  //   name:"employees",
-  //   message:"please select an employee",
-  //   choices: async function () {
-  //     let things = await connection.query("SELECT * FROM employee");
-      
-  //       let data = [];
-
-  //     for (let i = 0; i < things.length; i++) {
-  //         let x = {};
-  //         x.name = things[i].first_name + " " + things[i].last_name;
-  //         x.value = things[i].first_name + " " + things[i].last_name;
-  //         data.push(x);
-  //     }
-
-  //     return data;
-      
-  //   },
-  //   when:function(responce){
-  //     return responce.employeeChoices.indexOf('all')>-1
-  //   }
-  // },
